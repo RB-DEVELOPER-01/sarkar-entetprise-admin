@@ -1,0 +1,76 @@
+name: Make Admin App
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get files
+        uses: actions/checkout@v4
+
+      - name: Setup builder tools
+        uses: actions/setup-node@v4
+        with: { node-version: '20' }
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with: { distribution: 'temurin', java-version: '17' }
+
+      - name: Build the App and Set the Name
+        run: |
+          mkdir www
+          
+          # Copy only the files you uploaded
+          cp index.html www/
+          
+          npm init -y
+          
+          # Install Stable Core Tools
+          npm install @capacitor/core@5 @capacitor/android@5
+          npm install -D @capacitor/cli@5 @capacitor/assets
+          
+          # Install Native Plugins
+          npm install @capacitor/app@5 @capacitor/status-bar@5 @capacitor/splash-screen@5 @capacitor/filesystem@5 @capacitor/share@5
+          
+          # Configure the App for the Admin Panel
+          echo '{
+            "appId": "com.sarkarenterprises.admin",
+            "appName": "Admin",
+            "webDir": "www",
+            "backgroundColor": "#ffffff",
+            "plugins": {
+              "StatusBar": {
+                "overlaysWebView": true,
+                "style": "LIGHT"
+              },
+              "SplashScreen": {
+                "launchShowDuration": 1500,
+                "backgroundColor": "#ffffff",
+                "showSpinner": false
+              }
+            }
+          }' > capacitor.config.json
+          
+          npx cap add android
+
+      - name: Setup Your Logo
+        run: |
+          mkdir assets
+          cp logo.png assets/icon.png
+          npx @capacitor/assets generate --android
+
+      - name: Create the APK file
+        working-directory: ./android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
+
+      - name: Save the APK for you to download
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sarkar-Admin-App
+          path: android/app/build/outputs/apk/debug/app-debug.apk
