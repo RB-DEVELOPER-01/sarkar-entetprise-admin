@@ -24,19 +24,20 @@ jobs:
         run: |
           mkdir www
           
-          # Copy only the files you uploaded
+          # Copy your files
           cp index.html www/
+          cp native-share.js www/ || true
           
           npm init -y
           
-          # Install Stable Core Tools
-          npm install @capacitor/core@5 @capacitor/android@5
-          npm install -D @capacitor/cli@5 @capacitor/assets
+          # UPGRADED TO CAPACITOR 6 (Fixes the "Older Version" warning)
+          npm install @capacitor/core@6 @capacitor/android@6
+          npm install -D @capacitor/cli@6 @capacitor/assets
           
-          # Install Native Plugins
-          npm install @capacitor/app@5 @capacitor/status-bar@5 @capacitor/splash-screen@5 @capacitor/filesystem@5 @capacitor/share@5
+          # Install Native Plugins at version 6
+          npm install @capacitor/app@6 @capacitor/status-bar@6 @capacitor/splash-screen@6 @capacitor/filesystem@6 @capacitor/share@6
           
-          # Configure the App for the Admin Panel
+          # Configure the App
           echo '{
             "appId": "com.sarkarenterprises.admin",
             "appName": "Admin",
